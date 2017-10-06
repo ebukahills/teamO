@@ -13,14 +13,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import MenuBuilder from './menu';
 
-import {
-  initSwarm,
-  startListen,
-  startSwarm,
-  onNewConnection,
-  OnEvent,
-  getPeerCount,
-} from './swarm';
+import { start, stop } from './ipc/ipcMainActions';
 
 let mainWindow = null;
 
@@ -54,6 +47,7 @@ const installExtensions = async () => {
  */
 
 app.on('window-all-closed', () => {
+  stop();
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== 'darwin') {
@@ -85,6 +79,7 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     // mainWindow.focus();
+    start();
   });
 
   mainWindow.on('closed', () => {
@@ -94,3 +89,8 @@ app.on('ready', async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 });
+
+// process.on('exit', () => {
+//   mainWindow = null;
+//   stop()
+// })

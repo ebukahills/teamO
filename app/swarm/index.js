@@ -4,36 +4,60 @@ class NetworkSwarm {
   constructor(port) {
     this.port = port || 5050;
     this.opts = {
-      utp: false
-    }
+      utp: false,
+    };
   }
-  
-  init(swarmId, userId) {
-    this.swarmId = swarmId
-    this.userId = userId
-    this.sw = swarm({
-      ...this.opts,
-      id: userId
-    });
+
+  init(swarmId) {
+    try {
+      this.swarmId = swarmId.toUpperCase().trim();
+      this.sw = swarm(this.opts);
+    } catch (err) {
+      console.log(err);
+    }
+    return this
   }
 
   listen() {
-    this.sw.listen(this.port);
+    try {
+      if (!this.sw) {
+        console.error('You need to initiate a Swarm before listening');
+        return false;
+      }
+      this.sw.listen(this.port);
+    } catch (err) {
+      console.log(err);
+    }
     return this.sw;
   }
 
   start(cb) {
-    this.sw.join(
-      this.swarmId,
-      (cb = () => { // Optional Callback
-        console.log(`Swarm ${this.swarmId} Started...`);
-      })
-    );
-    return this.sw;
+    return new Promise((resolve, reject) => {
+      try {
+        if(!this.swarmId) {
+          console.log('No Valid Team name passed');
+          return false
+        }
+        this.sw.join(
+          this.swarmId,
+          (cb = () => {
+            // Optional Callback
+            console.log(`Swarm ${this.swarmId} Started...`);
+            return resolve(this);
+          })
+        );
+        
+      } catch (err) {
+        console.log(err);
+        reject(err);
+        this.close()
+      }
+      
+    })
   }
 
   close() {
-    if(!this.swarmId) return;
+    if (!this.swarmId) return;
     this.sw.leave(this.swarmId);
   }
 
@@ -45,11 +69,11 @@ class NetworkSwarm {
 
 let NS = new NetworkSwarm(5050);
 
-export const initSwarm = (swarmId, userId) => {
-  return NS.init()
-}
+export const initSwarm = (swarmId) => {
+  return NS.init(swarmId).listen();
+};
 
-export const startListen = () => {
+export const listenSwarm = () => {
   return NS.listen();
 };
 
@@ -59,7 +83,7 @@ export const startSwarm = () => {
 
 export const closeSwarm = () => {
   return NS.close();
-}
+};
 
 export const onNewConnection = cb => {
   return NS.on('connection', cb);
