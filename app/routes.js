@@ -5,13 +5,15 @@ import App from './containers/App';
 
 import MainPage from './containers/MainPage';
 import EnterTeam from './containers/EnterTeam';
+import Login from './containers/Login'
 
 export default () => (
   <App>
     <Switch>
-      <Route path='/main' component={MainPage} />
+      <Route path='/' exact={true} component={MainPage} />
+      <Route path='/login' component={Login} />
       <Route path='/team' component={EnterTeam} />
-      <Redirect from='*' to='/team' />
+      <Redirect from='*' to='/' />
     </Switch>
   </App>
 );

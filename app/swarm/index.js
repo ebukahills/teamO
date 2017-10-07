@@ -8,14 +8,15 @@ class NetworkSwarm {
     };
   }
 
-  init(swarmId) {
+  init(swarmId, username) {
     try {
       this.swarmId = swarmId.toUpperCase().trim();
-      this.sw = swarm(this.opts);
+      // Passing Swarm client id as username here
+      this.sw = swarm({ ...this.opts, id: username });
     } catch (err) {
       console.log(err);
     }
-    return this
+    return this;
   }
 
   listen() {
@@ -34,9 +35,8 @@ class NetworkSwarm {
   start(cb) {
     return new Promise((resolve, reject) => {
       try {
-        if(!this.swarmId) {
-          console.log('No Valid Team name passed');
-          return false
+        if (!this.swarmId) {
+          return reject('No Valid Team name passed');
         }
         this.sw.join(
           this.swarmId,
@@ -46,14 +46,12 @@ class NetworkSwarm {
             return resolve(this);
           })
         );
-        
       } catch (err) {
         console.log(err);
         reject(err);
-        this.close()
+        this.close();
       }
-      
-    })
+    });
   }
 
   close() {
@@ -69,8 +67,8 @@ class NetworkSwarm {
 
 let NS = new NetworkSwarm(5050);
 
-export const initSwarm = (swarmId) => {
-  return NS.init(swarmId).listen();
+export const initSwarm = swarmId => {
+  return NS.init(swarmId, username).listen();
 };
 
 export const listenSwarm = () => {
@@ -96,3 +94,7 @@ export const OnEvent = (event, cb) => {
 export const getPeerCount = () => {
   return NS.sw.connected;
 };
+
+export const getConnections = () => {
+  return NS.sw.connections;
+}

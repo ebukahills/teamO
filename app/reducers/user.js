@@ -1,4 +1,4 @@
-import {SET_TEAM} from '../actions/userActions'
+import {SET_TEAM, LOGIN} from '../actions/userActions'
 
 const initUser = {
   team: '',
@@ -7,12 +7,20 @@ const initUser = {
   details: {}
 }
 
-export const userReducer = (state = initUser, action) {
+export default (state = initUser, action) => { // User Reducer
   switch (action.type) {
     case SET_TEAM:
       return {
         ...state,
         team: action.team
+      }
+
+    case LOGIN:
+      return {
+        ...state,
+        authenticated: true,
+        username: action.username,
+        details: action.details,
       }
   
     default:

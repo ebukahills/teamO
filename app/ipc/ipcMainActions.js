@@ -7,24 +7,23 @@ import {
   onNewConnection,
   OnEvent,
   getPeerCount,
-  closeSwarm
+  closeSwarm,
 } from '../swarm';
 
-import {startDB} from '../db'
+import { startDB } from '../db';
 
 export function start() {
   let { webContents } = BrowserWindow.getAllWindows()[0];
 
-  ipcMain.on('set:team', async (e, team) => {
-    console.log('Team Joined: ', team);
-    if (initSwarm(team)) {
+  ipcMain.on('auth:login', async (e, { username, password, team }) => {
+    console.log('Joining Team: ', team);
+    if (initSwarm(team, username)) {
       // Initiate and Start syncing database here
-      await startSwarm()
       startDB(team);
     } else {
       webContents.send('msg:error', {
-        message: 'Error Connecting to Team.',
-        info: 'Please Restart App',
+        error: 'Error Connecting to Team.',
+        message: 'Please Restart App',
       });
     }
   });
@@ -33,7 +32,7 @@ export function start() {
 }
 
 export function stop() {
-  closeSwarm()
+  closeSwarm();
   ipcMain.removeAllListeners();
   return true;
 }
