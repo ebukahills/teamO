@@ -9,6 +9,7 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { throttle } from 'lodash';
 
 import {
+  initSwarm,
   onNewConnection,
   startSwarm,
   getConnections,
@@ -33,25 +34,33 @@ class Database {
     this.socketListening = false;
   }
 
-  startDB(team) {
-    // Set reusable webContents in class here. Might change
-    let { webContents } = BrowserWindow.getAllWindows()[0];
-    this.webContents = webContents;
+  startDB(team, username) {
     if (!team) {
       throw new Error('You must pass a valid Team ID');
     }
+    // Initialize Swarm here instead so it's initialized even after connection Teardown during auth
+    if (!initSwarm(team, username))
+      throw new Error('Error Joining Swarm: ' + team);
+
+    // Set reusable webContents in class here. Might change
+    let { webContents } = BrowserWindow.getAllWindows()[0];
+    this.webContents = webContents;
+
     if (this.localDB) {
-      // DB has already been setup. ABORT
+      // DB has already been setup. ABORT DB SETUP
       console.log('Local DB has already been setup. ABORT');
       return this;
     }
     this.team = team;
     this.localDB = new PouchDB(team);
     console.log('Started DB!');
-    if(!this.socketListening) {
+
+    if (!this.socketListening) {
       socketPouchServer.listen(this.port, {}, async () => {
         this.socketListening = true;
-        console.log('PouchDB Socket Server now listening on Port: ' + this.port);
+        console.log(
+          'PouchDB Socket Server now listening on Port: ' + this.port
+        );
         await startSwarm();
         this.onSwarmConnection();
       });
@@ -210,20 +219,20 @@ class Database {
 
 let DB = new Database(SERVER_PORT);
 
-export const startDB = team => {
-  return DB.startDB(team);
+export const startDB = (team, username) => {
+  return DB.startDB(team, username);
 };
 
 // Throttle these functions for 5 seconds to avoid database/network race conditions
 export const login = throttle((team, username, password) => {
   DB.closeDB()
-    .startDB(team)
+    .startDB(team, username)
     .authenticate(username, password, true);
 }, 5000);
 
 export const register = throttle((name, username, password, team) => {
   DB.closeDB()
-    .startDB(team)
+    .startDB(team, username)
     .register(name, username, password, true);
 }, 5000);
 

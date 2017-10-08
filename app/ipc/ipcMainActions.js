@@ -17,26 +17,12 @@ export function start() {
 
   ipcMain.on('auth:login', async (e, { username, password, team }) => {
     console.log('Joining Team: ', team);
-    if (initSwarm(team, username)) {
-      // Login: Starts DB and Syncing
-      login(team, username, password);
-    } else {
-      webContents.send('msg:error', {
-        error: 'Error Connecting to Team.',
-        message: 'Please Restart App',
-      });
-    }
+    // Login: Starts DB and Syncing
+    login(team, username, password);
   });
 
   ipcMain.on('auth:register', async (e, { name, username, password, team }) => {
-    if (initSwarm(team, username)) {
-      register(name, username, password, team);
-    } else {
-      webContents.send('msg:error', {
-        error: 'Error Connecting to Team.',
-        message: 'Please Restart App',
-      });
-    }
+    register(name, username, password, team);
   });
 
   return true;
