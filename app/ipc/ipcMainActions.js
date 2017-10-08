@@ -10,7 +10,7 @@ import {
   closeSwarm,
 } from '../swarm';
 
-import { startDB } from '../db';
+import { startDB, login, register } from '../db';
 
 export function start() {
   let { webContents } = BrowserWindow.getAllWindows()[0];
@@ -18,8 +18,19 @@ export function start() {
   ipcMain.on('auth:login', async (e, { username, password, team }) => {
     console.log('Joining Team: ', team);
     if (initSwarm(team, username)) {
-      // Initiate and Start syncing database here
-      startDB(team);
+      // Login: Starts DB and Syncing
+      login(team, username, password);
+    } else {
+      webContents.send('msg:error', {
+        error: 'Error Connecting to Team.',
+        message: 'Please Restart App',
+      });
+    }
+  });
+
+  ipcMain.on('auth:register', async (e, { name, username, password, team }) => {
+    if (initSwarm(team, username)) {
+      register(name, username, password, team);
     } else {
       webContents.send('msg:error', {
         error: 'Error Connecting to Team.',

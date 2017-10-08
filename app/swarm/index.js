@@ -3,12 +3,19 @@ import swarm from 'discovery-swarm';
 class NetworkSwarm {
   constructor(port) {
     this.port = port || 5050;
+    this.sw = null;
+    this.listening = false;
     this.opts = {
       utp: false,
     };
   }
 
   init(swarmId, username) {
+    if (this.sw) {
+      // Swarm was already setup
+      console.log('Swarm was already setup');
+      return this;
+    }
     try {
       this.swarmId = swarmId.toUpperCase().trim();
       // Passing Swarm client id as username here
@@ -20,6 +27,12 @@ class NetworkSwarm {
   }
 
   listen() {
+    if (this.listening) {
+      // Already Listening on Port
+      console.log('Already Listening on Port');
+      return this.sw;
+    }
+    this.listening = true;
     try {
       if (!this.sw) {
         console.error('You need to initiate a Swarm before listening');
@@ -54,9 +67,12 @@ class NetworkSwarm {
     });
   }
 
-  close() {
+  leave() {
     if (!this.swarmId) return;
-    this.sw.leave(this.swarmId);
+    if (this.sw) this.sw.leave(this.swarmId);
+    this.sw = null;
+    this.listening = false;
+    console.log(`Swarm ${this.swarmId} left!`);
   }
 
   on(event, cb) {
@@ -67,7 +83,7 @@ class NetworkSwarm {
 
 let NS = new NetworkSwarm(5050);
 
-export const initSwarm = swarmId => {
+export const initSwarm = (swarmId, username) => {
   return NS.init(swarmId, username).listen();
 };
 
@@ -79,8 +95,8 @@ export const startSwarm = () => {
   return NS.start();
 };
 
-export const closeSwarm = () => {
-  return NS.close();
+export const leaveSwarm = () => {
+  return NS.leave();
 };
 
 export const onNewConnection = cb => {
@@ -97,4 +113,4 @@ export const getPeerCount = () => {
 
 export const getConnections = () => {
   return NS.sw.connections;
-}
+};

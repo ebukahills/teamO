@@ -17,16 +17,18 @@ import { push } from 'react-router-redux';
 
 import IntroPage from '../components/IntroPage';
 
-import { startLogin } from '../actions/userActions';
-import { showError } from '../actions/feedbackActions';
+import { startRegister } from '../actions/userActions';
+import { showError, showInfo } from '../actions/feedbackActions';
 import { redirect } from '../actions/routerActions';
 
-class Login extends Component {
+class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      name: '',
       username: '',
       password: '',
+      cpassword: '',
     };
   }
 
@@ -36,13 +38,14 @@ class Login extends Component {
     }
   }
 
-  login(e) {
+  register(e) {
     e.preventDefault();
-    if (!this.state.username || !this.state.password)
-      this.props.dispatch(showError('Username or Password cannot be Empty'));
-    this.props.dispatch(
-      startLogin(this.state.username, this.state.password, this.props.team)
-    );
+    let { name, username, password, cpassword } = this.state;
+    if (!name || !username || !password) return;
+    if (password !== cpassword) {
+      return this.props.dispatch(showError('Passwords do not Match!'));
+    }
+    this.props.dispatch(startRegister(name.trim(), username, password));
   }
 
   render() {
@@ -50,15 +53,27 @@ class Login extends Component {
       <IntroPage>
         <div>
           <span style={{ fontSize: '2em' }}>
-            <strong>Login</strong>
+            <strong>Register</strong>
           </span>
           <p style={{ margin: '5px 50px 20px 0px' }}>
-            Enter your Login Credentials to get access to Team:{' '}
+            Register with your details to get Access to the {'  '}
             <span style={{ fontSize: '1.2em', color: 'red' }}>
               {this.props.team}
-            </span>
+            </span>{' '}
+            Team.
           </p>
-          <Form onSubmit={e => this.login(e)}>
+          <Form onSubmit={e => this.register(e)}>
+            <FormGroup row>
+              <Input
+                size="lg"
+                placeholder="Full Name"
+                value={this.state.name}
+                onChange={e =>
+                  this.setState({
+                    name: e.target.value,
+                  })}
+              />
+            </FormGroup>
             <FormGroup row>
               <Input
                 size="lg"
@@ -80,17 +95,26 @@ class Login extends Component {
               />
             </FormGroup>
             <FormGroup row>
+              <Input
+                size="lg"
+                type="password"
+                value={this.state.cpassword}
+                placeholder="Confirm Password"
+                onChange={e => this.setState({ cpassword: e.target.value })}
+              />
+            </FormGroup>
+            <FormGroup row>
               <Button size="lg" color="success" block>
-                LOGIN TO {this.props.team}
+                REGISTER ON {this.props.team}
               </Button>
             </FormGroup>
             <Row className="justify-content-center align-middle">
               <Button
                 size="sm"
                 color="primary"
-                onClick={() => this.props.dispatch(push('/register'))}
+                onClick={() => this.props.dispatch(push('/login'))}
               >
-                REGISTER ON TEAM
+                LOGIN TO TEAM
               </Button>
             </Row>
           </Form>
@@ -106,4 +130,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps)(Register);
