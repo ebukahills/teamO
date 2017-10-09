@@ -3,7 +3,10 @@ import pouchdbFind from 'pouchdb-find';
 import socketPouchServer from 'socket-pouch/server';
 import socketPouchClient from 'socket-pouch/client';
 
-import { ipcMain, BrowserWindow } from 'electron';
+import path from 'path';
+import fs from 'fs';
+
+import { app, ipcMain, BrowserWindow } from 'electron';
 
 // Lodash Utils
 import { throttle } from 'lodash';
@@ -16,7 +19,14 @@ import {
   leaveSwarm,
 } from '../swarm';
 
-// Notify PouchDB of client Adapter
+const APP_DATA_PATH = path.join(app.getPath('appData'), 'teamO');
+
+// Setup Database Folder if it does not exist
+if (!fs.existsSync(APP_DATA_PATH)) {
+  fs.mkdirSync(APP_DATA_PATH);
+}
+
+// USE socket pouch client as Socket Adapter for PouchDB
 PouchDB.adapter('socket', socketPouchClient);
 PouchDB.plugin(pouchdbFind);
 
@@ -51,19 +61,24 @@ class Database {
       console.log('Local DB has already been setup. ABORT');
       return this;
     }
-    this.team = team;
-    this.localDB = new PouchDB(team);
-    console.log('Started DB!');
+    try {
+      this.team = team;
+      // Create Database in appData Path
+      this.localDB = new PouchDB(path.join(APP_DATA_PATH, team));
+      console.log('Started DB!');
 
-    if (!this.socketListening) {
-      socketPouchServer.listen(this.port, {}, async () => {
-        this.socketListening = true;
-        console.log(
-          'PouchDB Socket Server now listening on Port: ' + this.port
-        );
-        await startSwarm();
-        this.onSwarmConnection();
-      });
+      if (!this.socketListening) {
+        socketPouchServer.listen(this.port, {}, async () => {
+          this.socketListening = true;
+          console.log(
+            'PouchDB Socket Server now listening on Port: ' + this.port
+          );
+          await startSwarm();
+          this.onSwarmConnection();
+        });
+      }
+    } catch (err) {
+      console.error(err);
     }
     return this;
   }
@@ -195,7 +210,7 @@ class Database {
     this.sync = this.localDB
       .sync(this.remoteDB, { live: true, retry: true })
       .on('error', err => {
-        console.log(JSON.stringify(err));
+        console.log('Sync Error: ', JSON.stringify(err));
         //TODO: Reset remoteDB here and restart Sync;
       });
     return this;
