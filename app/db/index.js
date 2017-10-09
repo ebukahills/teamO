@@ -130,7 +130,7 @@ class Database {
           })
           .then(result => {
             console.log('Register Result: ', result);
-            if (result.doc[0]) {
+            if (result.docs[0]) {
               // User was found with username. No Register
               this.webContents.send('auth:register', {
                 authenticated: false,

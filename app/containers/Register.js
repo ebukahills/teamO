@@ -45,7 +45,9 @@ class Register extends Component {
     if (password !== cpassword) {
       return this.props.dispatch(showError('Passwords do not Match!'));
     }
-    this.props.dispatch(startRegister(name.trim(), username, password));
+    this.props.dispatch(
+      startRegister(name.trim(), username, password, this.props.team)
+    );
   }
 
   render() {

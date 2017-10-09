@@ -24,7 +24,6 @@ export const startLogin = (username, password, team) => {
       console.log(data);
       if (data.authenticated) {
         dispatch(login(username, data.details));
-        dispatch(push('/'));
       } else {
         dispatch(showError(data.error));
       }
@@ -34,12 +33,13 @@ export const startLogin = (username, password, team) => {
   };
 };
 
-export const login = (username, details) => {
-  return {
+export const login = (username, details) => dispatch => {
+  dispatch(push('/'));
+  dispatch({
     type: LOGIN,
     username,
     details,
-  };
+  });
 };
 
 export const startRegister = (name, username, password, team) => dispatch => {
