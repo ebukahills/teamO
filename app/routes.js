@@ -2,22 +2,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Switch, Route, Redirect } from 'react-router';
+import { ConnectedRouter } from 'react-router-redux';
 import App from './containers/App';
 import MainPage from './containers/MainPage';
 import EnterTeam from './containers/EnterTeam';
 import Login from './containers/Login';
 import Register from './containers/Register';
 
-import Loading from './components/Loading';
-
-export default connect(state => {
-  // mapStateToProps
-  return {
-    ready: state.app.ready,
-  };
-})(props => {
-  // Functional Root Component
-  return props.ready ? (
+export default ({ history }) => (
+  <ConnectedRouter history={history}>
     <App>
       <Switch>
         <Route path="/" exact={true} component={MainPage} />
@@ -27,7 +20,5 @@ export default connect(state => {
         <Redirect from="*" to="/" />
       </Switch>
     </App>
-  ) : (
-    <Loading />
-  );
-});
+  </ConnectedRouter>
+);

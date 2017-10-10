@@ -1,11 +1,14 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import Root from './containers/Root';
-import { configureStore, history } from './store/configureStore';
 import { persistStore } from 'redux-persist';
+import { ConnectedRouter } from 'react-router-redux';
 
 import { ipcRenderer } from 'electron';
+
+import { configureStore, history } from './store/configureStore';
+
+import Root from './containers/Root';
 
 import { appReady } from './actions/appActions';
 import { startLogin } from './actions/userActions';
@@ -23,8 +26,10 @@ persistStore(store, {}, err => {
     store.dispatch(appReady(true));
     // Get User information from restored state and startLogin action to Main
     const { username, team } = store.getState().user;
-    // Password is sent as Boolean true to Main to bypass password verificaton
-    store.dispatch(startLogin(username, true, team));
+    if (username && password) {
+      // Password is sent as Boolean true to Main to bypass password verificaton
+      store.dispatch(startLogin(username, true, team));
+    }
   }
 });
 
