@@ -12,6 +12,7 @@ import Root from './containers/Root';
 
 import { appReady } from './actions/appActions';
 import { startLogin } from './actions/userActions';
+import { start } from './ipcClient';
 // import 'bootstrap/dist/css/bootstrap.css'; Bootstrap is imported in app.global.css
 import './app.global.css';
 import './app.global.scss';
@@ -26,9 +27,10 @@ persistStore(store, {}, err => {
     store.dispatch(appReady(true));
     // Get User information from restored state and startLogin action to Main
     const { username, team } = store.getState().user;
-    if (username && password) {
+    if (username) {
       // Password is sent as Boolean true to Main to bypass password verificaton
       store.dispatch(startLogin(username, true, team));
+      start();
     }
   }
 });

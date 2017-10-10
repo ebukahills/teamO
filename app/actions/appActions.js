@@ -8,3 +8,12 @@ export const appReady = (bool: boolean) => {
     ready: bool,
   };
 };
+
+export const LOAD_USERS = 'LOAD_USERS';
+
+export const loadUsers = (users: []) => {
+  return {
+    type: LOAD_USERS,
+    users,
+  };
+};

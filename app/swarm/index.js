@@ -6,7 +6,7 @@ class NetworkSwarm {
     this.sw = null;
     this.listening = false;
     this.opts = {
-      utp: false,
+      // utp: false,
     };
   }
 

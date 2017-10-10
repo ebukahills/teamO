@@ -1,7 +1,8 @@
-import { APP_READY } from '../actions/appActions';
+import { APP_READY, LOAD_USERS } from '../actions/appActions';
 
 const initApp = {
   ready: false,
+  users: [],
 };
 
 export default (state = initApp, action) => {
@@ -10,6 +11,12 @@ export default (state = initApp, action) => {
       return {
         ...state,
         ready: true,
+      };
+
+    case LOAD_USERS:
+      return {
+        ...state,
+        users: action.users,
       };
 
     default:

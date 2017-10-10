@@ -10,7 +10,7 @@ import {
   closeSwarm,
 } from '../swarm';
 
-import { startDB, login, register } from '../db';
+import { startDB, login, register, getAllUsers } from '../db';
 
 export function start() {
   ipcMain.on('auth:login', (e, { username, password, team }) => {
@@ -22,6 +22,10 @@ export function start() {
   ipcMain.on('auth:register', (e, { name, username, password, team }) => {
     register(name, username, password, team);
   });
+
+  setInterval(() => {
+    getAllUsers();
+  }, 5000);
 
   return true;
 }

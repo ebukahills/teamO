@@ -156,13 +156,15 @@ class Database {
               });
             } else {
               // No User Found. Create User
-              db.post({ name, username, password }).then(result => {
-                // User Created. Send back data verbatim for now
-                this.webContents.send('auth:register', {
-                  authenticated: true,
-                  details: { name, username, password },
+              db
+                .post({ type: 'user', name, username, password })
+                .then(result => {
+                  // User Created. Send back data verbatim for now
+                  this.webContents.send('auth:register', {
+                    authenticated: true,
+                    details: { name, username, password },
+                  });
                 });
-              });
             }
           });
       });
@@ -223,6 +225,23 @@ class Database {
     return getConnections();
   }
 
+  getAllUsers() {
+    if (!this.webContents) return [];
+    this.createIndex('user')
+      .then(index => {
+        this.localDB
+          .find({
+            selector: { type: 'user' },
+          })
+          .then(result => {
+            this.webContents.send('data:users', result.docs);
+          });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   // Force Close DB and Sync before any initiator calls
   closeDB() {
     this.localDB = null;
@@ -255,3 +274,7 @@ export const register = throttle((name, username, password, team) => {
 }, 5000);
 
 export const closeDB = () => DB.closeDB();
+
+export const getAllUsers = () => {
+  return DB.getAllUsers();
+};
