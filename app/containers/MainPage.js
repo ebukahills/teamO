@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Sidebar from './Sidebar';
 import ChatPage from './ChatPage';
@@ -8,6 +9,12 @@ import { redirect } from '../actions/routerActions';
 class MainPage extends Component {
   constructor(props) {
     super(props);
+  }
+
+  componentWillMount() {
+    if (!this.props.authenticated) {
+      this.props.dispatch(redirect('/team'));
+    }
   }
 
   render() {
@@ -21,7 +28,9 @@ class MainPage extends Component {
 }
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    authenticated: state.user.authenticated,
+  };
 }
 
-export default MainPage;
+export default connect(mapStateToProps)(MainPage);
