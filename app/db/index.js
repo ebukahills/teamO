@@ -49,8 +49,9 @@ class Database {
       throw new Error('You must pass a valid Team ID');
     }
     // Initialize Swarm here instead so it's initialized even after connection Teardown during auth
-    if (!initSwarm(team, username))
+    if (!initSwarm(team, username)) {
       throw new Error('Error Joining Swarm: ' + team);
+    }
 
     // Set reusable webContents in class here. Might change
     let { webContents } = BrowserWindow.getAllWindows()[0];
@@ -104,7 +105,9 @@ class Database {
             console.log(result);
             let doc = result.docs[0];
             if (doc) {
-              if (doc.password === password) {
+              // If password === true Bypass password Verification
+              // This is for the Login Action coming from restored state
+              if (doc.password === password || password === true) {
                 this.webContents.send('auth:login', {
                   authenticated: true,
                   details: doc,

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 class Sidebar extends Component {
   constructor(props) {
@@ -6,15 +7,16 @@ class Sidebar extends Component {
   }
 
   render() {
+    const { team, username } = this.props;
     return (
       <div id="sidebar">
         <div id="sidebar-container">
           <div id="team-name">
-            <h1>Team Awesome</h1>
+            <h1>{team}</h1>
           </div>
           <div id="username">
             <div className="status"> </div>
-            <h2>brandonfujii</h2>
+            <h2>{username}</h2>
           </div>
           <ul id="channels">
             <h4>channels</h4>
@@ -73,4 +75,11 @@ class Sidebar extends Component {
   }
 }
 
-export default Sidebar
+function mapStateToProps(state) {
+  return {
+    team: state.user.team,
+    username: state.user.username,
+  };
+}
+
+export default connect(mapStateToProps)(Sidebar);

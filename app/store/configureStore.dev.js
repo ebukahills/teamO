@@ -4,11 +4,11 @@ import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
 import rootReducer from '../reducers';
-// import * as counterActions from '../actions/counter';
+import { persistStore, autoRehydrate } from 'redux-persist';
 
 const history = createHashHistory();
 
-const configureStore = (initialState) => {
+const configureStore = initialState => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -19,7 +19,7 @@ const configureStore = (initialState) => {
   // Logging Middleware
   const logger = createLogger({
     level: 'info',
-    collapsed: true
+    collapsed: true,
   });
   middleware.push(logger);
 
@@ -36,22 +36,23 @@ const configureStore = (initialState) => {
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-      // Options: http://zalmoxisus.github.io/redux-devtools-extension/API/Arguments.html
-      actionCreators,
-    })
+        // Options: http://zalmoxisus.github.io/redux-devtools-extension/API/Arguments.html
+        actionCreators,
+      })
     : compose;
   /* eslint-enable no-underscore-dangle */
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(...middleware));
-  const enhancer = composeEnhancers(...enhancers);
+  const enhancer = composeEnhancers(...enhancers, autoRehydrate());
 
   // Create Store
   const store = createStore(rootReducer, initialState, enhancer);
 
   if (module.hot) {
-    module.hot.accept('../reducers', () =>
-      store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
+    module.hot.accept(
+      '../reducers',
+      () => store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
     );
   }
 

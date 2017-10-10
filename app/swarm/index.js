@@ -69,9 +69,12 @@ class NetworkSwarm {
 
   leave() {
     if (!this.swarmId) return;
-    if (this.sw) this.sw.leave(this.swarmId);
-    this.sw = null;
-    this.listening = false;
+    if (this.sw != null) {
+      this.sw.leave(this.swarmId);
+    }
+    // Disable setting sw to null => Race Condition
+    // this.sw = null;
+    // this.listening = false;
     console.log(`Swarm ${this.swarmId} left!`);
   }
 
