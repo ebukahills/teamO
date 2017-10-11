@@ -1,7 +1,9 @@
 import PouchDB from 'pouchdb';
 import pouchdbFind from 'pouchdb-find';
-import socketPouchServer from 'socket-pouch/server';
-import socketPouchClient from 'socket-pouch/client';
+import express from 'express';
+import expressPouch from 'express-pouchdb';
+// import socketPouchServer from 'socket-pouch/server';
+// import socketPouchClient from 'socket-pouch/client';
 
 import path from 'path';
 import fs from 'fs';
@@ -19,6 +21,10 @@ import {
   leaveSwarm,
 } from '../swarm';
 
+// Setup Express Server
+const server = express();
+server.use('/db', expressPouch(PouchDB));
+
 const APP_DATA_PATH = path.join(app.getPath('appData'), 'teamO');
 
 // Setup Database Folder if it does not exist
@@ -27,7 +33,7 @@ if (!fs.existsSync(APP_DATA_PATH)) {
 }
 
 // USE socket pouch client as Socket Adapter for PouchDB
-PouchDB.adapter('socket', socketPouchClient);
+// PouchDB.adapter('socket', socketPouchClient);
 PouchDB.plugin(pouchdbFind);
 
 const SERVER_PORT = 5051;
@@ -40,8 +46,10 @@ class Database {
     this.localDB = null;
     this.remoteDB = null;
     this.team = null;
+    this.server = null;
+    this.sync = null;
     this.listening = false;
-    this.socketListening = false;
+    this.serverListening = false;
   }
 
   startDB(team, username) {
@@ -65,15 +73,17 @@ class Database {
     try {
       this.team = team;
       // Create Database in appData Path
-      this.localDB = new PouchDB(path.join(APP_DATA_PATH, team));
+      this.localDB = new PouchDB(path.join(APP_DATA_PATH, this.team));
       console.log('Started DB!');
 
-      if (!this.socketListening) {
-        socketPouchServer.listen(this.port, {}, async () => {
-          this.socketListening = true;
-          console.log(
-            'PouchDB Socket Server now listening on Port: ' + this.port
-          );
+      if (!this.serverListening) {
+        // Start Express PouchDB here
+        this.server = server.listen(this.port, async err => {
+          if (err) {
+            throw new Error('Express Listen Error: ' + JSON.stringify(err));
+          }
+          console.log('Express Server listening on ' + this.port);
+          this.serverListening = true;
           await startSwarm();
           this.onSwarmConnection();
         });
@@ -186,21 +196,16 @@ class Database {
   }
 
   onSwarmConnection() {
-    if (this.listening) {
-      console.log('Already Listening for Connections on Swarm!!!');
-      return this;
-    }
-    this.listening = true;
+    // if (this.listening) {
+    //   console.log('Already Listening for Connections on Swarm!!!');
+    //   return this;
+    // }
+    // this.listening = true;
     onNewConnection((connection, info) => {
       console.log('Host Connected: ', info);
       if (!this.remoteDB && !info.host.includes(':')) {
-        let remoteHost = info.host;
-        let url = `ws://${remoteHost}:${this.port}`;
-        this.remoteDB = new PouchDB({
-          adapter: 'socket',
-          name: this.team,
-          url,
-        });
+        // Build Remote DB connection string from Remote Host and Port
+        this.remoteDB = `http://${info.host}:${this.port}/db/${this.team}`;
         this.startSync();
       }
     });
@@ -212,11 +217,15 @@ class Database {
       console.log('Local or Remote DB not setup. Please Check');
       return this;
     }
+
     this.sync = this.localDB
       .sync(this.remoteDB, { live: true, retry: true })
       .on('error', err => {
         console.log('Sync Error: ', JSON.stringify(err));
         //TODO: Reset remoteDB here and restart Sync;
+      })
+      .on('change', () => {
+        console.log('Syncing....');
       });
     return this;
   }
@@ -250,6 +259,7 @@ class Database {
     leaveSwarm();
     // Cancel Synchronization;
     if (this.sync) this.sync.cancel();
+    this.sync = null;
     return this;
   }
 }

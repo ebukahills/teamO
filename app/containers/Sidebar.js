@@ -48,8 +48,8 @@ class Sidebar extends Component {
           </ul>
           <ul id="direct-messages">
             <h4>Direct Messages</h4>
-            {users.map(user => (
-              <li className="direct-message">
+            {users.map((user, key) => (
+              <li key={key} className="direct-message">
                 <div className="status"> </div>
                 <p>{user.username}</p>
               </li>

@@ -53,4 +53,7 @@ npm-debug.log.*
 
 
 # custom
-./test.js
+/test.js
+/_*
+/pouch__all_dbs__
+/log.txt
