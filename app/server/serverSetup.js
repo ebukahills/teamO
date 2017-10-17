@@ -63,7 +63,7 @@ class Server {
     });
     this.service.on('error', err => {
       console.log('Error Starting Bonjour Service: ', err);
-      this.reset();
+      this.reset().startClient();
     });
 
     if (!this.server) {
@@ -77,6 +77,7 @@ class Server {
       this.server.on('connection', id => {
         this.connections.add(id);
         // Send connected Set to Client
+        console.log(this.connections);
         this.sendToClient();
       });
       this.server.on('disconnect', id => {
@@ -95,7 +96,7 @@ class Server {
     }
     if (this.browser) {
       this.browser.stop();
-      this.browser = null;
+      // this.browser = null;
     }
     this.remote = null;
     console.log('Service Stopped');
@@ -114,13 +115,14 @@ class Server {
     this.browser.on('down', () => {
       // Service Down. Do Something
       // this.reset()
+      console.log('Bonjour Browser Service Down. Check Server');
     });
   }
 
   sendToClient() {
     this.clientWindow.send('server:update', {
       remote: this.remote,
-      connections: this.connections,
+      connections: Array.from(this.connections),
     });
   }
 

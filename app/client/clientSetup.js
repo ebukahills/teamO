@@ -18,12 +18,12 @@ class Client {
   }
 
   start(username, team) {
-    initDB(team, username);
+    initDB(team, username); // Start Client DB
     this.username = username;
     this.team = team;
     // Setup Listener for Server Events
     ipcRenderer.on('server:update', (e, data) => {
-      console.log('Got Server Update Message');
+      console.log('Got Server Update Message ', data);
       this.remote = data.remote;
       this.connections = data.connections;
 
@@ -34,7 +34,7 @@ class Client {
         this.peer = new Peer(username, {
           ...this.remote,
           path: '/teamO',
-          debug: 3,
+          debug: 2,
         });
 
         this.peer.on('error', err => {
@@ -56,8 +56,8 @@ class Client {
 
       if (data.remote.host === 'localhost') {
         // This Peer is the server. Broadcast to all Active RTC connections
-        this.connections = Array.from(data.connections);
-        this.broadcastMessage('connections', Array.from(data.connections));
+        this.connections = data.connections;
+        this.broadcastMessage('connections', this.connections);
       }
     });
   }
@@ -77,14 +77,17 @@ class Client {
   startListening() {
     // Connect Listener
     this.peer.on('connect', dataConnection => {
+      console.log('New Client Peer Connection');
       dataConnection.on('data', data => {
         switch (data.type) {
           case 'message':
+            console.log('Received Peer Message');
             dataConnection.send('ack');
             saveMessages({ ...data.message, delivered: true });
             break;
 
           case 'connections': // RTC Online users broadcast
+            console.log('Received Peer Connections Broadcast');
             this.connections = data.message;
             store.dispatch(loadUsers(data.message));
             break;
@@ -97,6 +100,7 @@ class Client {
   }
 
   broadcastMessage(type = 'default', connections, message = connections) {
+    console.log('Sending Broadcast Message', message);
     // connections is an array of IDs to broadcast message to
     // Message Format { type: type, message: message }
     _.forEach(_.filter(connections, id => id !== this.peer.id), id =>
