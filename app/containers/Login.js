@@ -17,7 +17,7 @@ import { push } from 'react-router-redux';
 
 import IntroPage from '../components/IntroPage';
 
-import { startLogin } from '../actions/userActions';
+import { startLogin, login } from '../actions/userActions';
 import { showError } from '../actions/feedbackActions';
 import { redirect } from '../actions/routerActions';
 
@@ -41,7 +41,8 @@ class Login extends Component {
     if (!this.state.username || !this.state.password)
       this.props.dispatch(showError('Username or Password cannot be Empty'));
     this.props.dispatch(
-      startLogin(this.state.username, this.state.password, this.props.team)
+      // startLogin(this.state.username, this.state.password, this.props.team)
+      login(this.state.username)
     );
   }
 

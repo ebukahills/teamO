@@ -19,7 +19,7 @@ class NetworkSwarm {
     try {
       this.swarmId = swarmId.toUpperCase().trim();
       // Passing Swarm client id as username here
-      this.sw = swarm({ ...this.opts, id: username });
+      this.sw = swarm();
     } catch (err) {
       console.log(err);
     }
@@ -79,6 +79,7 @@ class NetworkSwarm {
   }
 
   on(event, cb) {
+    console.log('on event ' + event + ' fired');
     this.sw.on(event, cb);
     return this.sw;
   }

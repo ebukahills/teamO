@@ -9,7 +9,7 @@
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  *
  * @flow
- */
+*/
 import { app, BrowserWindow, ipcMain } from 'electron';
 import MenuBuilder from './menu';
 

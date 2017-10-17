@@ -3,17 +3,19 @@ import { push } from 'react-router-redux';
 
 import { showError } from './feedbackActions';
 
+import { start } from '../client/clientSetup';
+
 export const SET_TEAM = 'SET_TEAM';
 export const LOGIN = 'LOGIN';
 
 export const setTeam = team => {
   return dispatch => {
-    // ipcRenderer.send('set:team', team.trim().toUpperCase());
-    dispatch(push('/login'));
+    ipcRenderer.send('set:team', team.trim().toUpperCase());
     dispatch({
       type: SET_TEAM,
       team,
     });
+    dispatch(push('/login'));
   };
 };
 

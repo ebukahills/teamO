@@ -51,7 +51,7 @@ class Sidebar extends Component {
             {users.map((user, key) => (
               <li key={key} className="direct-message">
                 <div className="status"> </div>
-                <p>{user.username}</p>
+                <p>{user}</p>
               </li>
             ))}
           </ul>
