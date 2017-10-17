@@ -18,7 +18,7 @@ class Client {
   }
 
   start(username, team) {
-    initDB(team, usrename);
+    initDB(team, username);
     this.username = username;
     this.team = team;
     // Setup Listener for Server Events
