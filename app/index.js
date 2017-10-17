@@ -11,7 +11,7 @@ import { configureStore, history } from './store/configureStore';
 import Root from './containers/Root';
 
 import { appReady } from './actions/appActions';
-import { startLogin } from './actions/userActions';
+import { setTeam, login } from './actions/userActions';
 // import 'bootstrap/dist/css/bootstrap.css'; Bootstrap is imported in app.global.css
 import './app.global.css';
 import './app.global.scss';
@@ -25,12 +25,13 @@ persistStore(store, {}, err => {
   } else {
     store.dispatch(appReady(true));
     // Get User information from restored state and startLogin action to Main
-    // const { username, team } = store.getState().user;
-    // if (username) {
-    //   // Password is sent as Boolean true to Main to bypass password verificaton
-    //   store.dispatch(startLogin(username, true, team));
-    //   start();
-    // }
+    const { username, team } = store.getState().user;
+    if (team) {
+      store.dispatch(setTeam(team));
+    }
+    if (username) {
+      store.dispatch(login(username));
+    }
   }
 });
 

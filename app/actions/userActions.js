@@ -3,7 +3,7 @@ import { push } from 'react-router-redux';
 
 import { showError } from './feedbackActions';
 
-import { start } from '../client/clientSetup';
+import { startClient } from '../client/clientSetup';
 
 export const SET_TEAM = 'SET_TEAM';
 export const LOGIN = 'LOGIN';
@@ -36,6 +36,7 @@ export const startLogin = (username, password, team) => {
 };
 
 export const login = (username, details) => dispatch => {
+  startClient();
   dispatch({
     type: LOGIN,
     username,

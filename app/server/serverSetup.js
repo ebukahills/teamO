@@ -3,7 +3,7 @@ import Bonjour from 'bonjour';
 // import {PeerServer} from 'peer';
 const PeerServer = require('peer').PeerServer;
 
-const RAND_TIMEOUT = Math.round(Math.random() * 15000 + 5000); // Random 5 - 20 seconds;
+const RAND_TIMEOUT = Math.round(Math.random() * 20000 + 10000); // Random 10 - 30 seconds;
 const SERVER_PORT = 8000;
 const SERVICE_PORT = 8001;
 
@@ -52,6 +52,7 @@ class Server {
   }
 
   startServer() {
+    console.log('Starting Server...');
     this.service = bonjour.publish({
       name: 'TeamO Service Server',
       type: this.team,
@@ -68,7 +69,6 @@ class Server {
     if (!this.server) {
       // Start Server if it hasn't been setup
       // RTC Server may be left to run indefinitely once started
-      console.log('Starting Peer Server...');
       this.server = PeerServer({
         port: this.SERVER_PORT,
         path: '/teamO',

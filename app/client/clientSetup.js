@@ -141,7 +141,7 @@ class Client {
 
 let C = new Client();
 
-export function start() {
+export function startClient() {
   let { username, team } = store.getState().user;
   C.reset().start(username, team);
 }
