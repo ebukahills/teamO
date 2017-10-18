@@ -6,6 +6,7 @@ import { store } from '../';
 import { initDB, saveMessages } from '../db';
 
 import { loadUsers } from '../actions/appActions';
+import { newMessage } from '../actions/messageActions';
 
 class Client {
   constructor() {
@@ -87,7 +88,9 @@ class Client {
           case 'message':
             console.log('Received Peer Message');
             dataConnection.send('ack');
-            saveMessages({ ...data.message, delivered: true });
+            let receivedMessage = { ...data.message, delivered: true };
+            saveMessages(receivedMessage);
+            store.dispatch(newMessage(receivedMessage));
             break;
 
           case 'connections': // RTC Online users broadcast
@@ -115,7 +118,14 @@ class Client {
   }
 
   sendMessage(message) {
-    let sent = false;
+    // Dispatch newMessage Redux Action here now. Will definitely Change
+    store.dispatch(newMessage(message));
+    if (message.from === message.to) {
+      // Sending Message from Me to Me, Save Directly to DB
+      saveMessages({ ...message, delivered: true });
+      return;
+    }
+    let saved = false;
     let dataConnection = this.peer.connect(message.to);
     dataConnection.on('error', err => {
       console.log('Error sending Message to Remote: ', err);

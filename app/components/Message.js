@@ -4,7 +4,7 @@ const Message = props => {
   return props.me ? (
     <li className="message d-flex justify-content-end">
       <div className="body">
-        <div className="username">Me</div>
+        <div className="username text-right">Me</div>
         <div className="text">{props.message.message}</div>
       </div>
       <div className="user-icon">

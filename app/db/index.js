@@ -33,7 +33,9 @@ class Database {
   async saveMessages(...messages) {
     try {
       await this.db.messages.bulkAdd(messages);
-      console.log('Message ' + message.message + ' Saved!');
+      console.log(
+        ...messages.map(message => 'Message ' + message.message + ' Saved!')
+      );
     } catch (err) {
       console.error('Error Saving Message! ', err);
     }

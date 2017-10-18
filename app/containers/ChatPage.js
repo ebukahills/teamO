@@ -2,11 +2,26 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import Message from '../components/Message';
+import MessageInput from '../components/MessageInput';
+
+import { sendMessage } from '../client/clientSetup';
 
 class ChatPage extends Component {
   constructor(props) {
     super(props);
   }
+
+  onSendMessage(m) {
+    let { messages, username, active } = this.props;
+    let message = {
+      message: m, // String function was called with from MessageInput Child;
+      from: username,
+      to: active,
+      time: Date.now(),
+    };
+    sendMessage(message);
+  }
+
   render() {
     let { messages, username, active } = this.props;
     // Active is the Active Chat Route
@@ -22,20 +37,19 @@ class ChatPage extends Component {
         <div id="chatbox">
           <ul className="messages">
             {messages &&
-              messages.map((message, key) => {
+              messages.map((message, key) => (
                 <Message
                   key={key}
                   message={message}
                   me={message.from === username}
-                />;
-              })}
+                />
+              ))}
           </ul>
         </div>
-        <div className="input-bar">
-          <form>
-            <input type="text" placeholder={`Send to @${active}`} />
-          </form>
-        </div>
+        <MessageInput
+          onSubmit={message => this.onSendMessage(message)}
+          active={active}
+        />
       </div>
     );
   }

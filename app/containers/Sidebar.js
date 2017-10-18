@@ -16,7 +16,6 @@ class Sidebar extends Component {
 
   render() {
     const { dispatch, team, username, users, path } = this.props;
-    const me = path.includes(username);
     return (
       <div id="sidebar">
         <div id="sidebar-container">
@@ -67,7 +66,7 @@ class Sidebar extends Component {
               >
                 <div className="status"> </div>
                 <p>
-                  {user} {me ? '  (Me)' : ''}
+                  {user} {user === username ? '  (me)' : ''}
                 </p>
               </li>
             ))}
