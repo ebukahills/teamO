@@ -36,9 +36,13 @@ class Server {
     this.team = team;
     this.clientWindow = BrowserWindow.getAllWindows()[0].webContents;
     this.browser = bonjour.findOne({ type: team });
+
     let listenTimeout = setTimeout(() => {
-      this.browser.stop();
-      this.browser = null;
+      console.log('Timeout lasted for ' + RAND_TIMEOUT / 1000 + ' seconds');
+      if (this.browser) {
+        this.browser.stop();
+        this.browser = null;
+      }
       this.startServer();
     }, RAND_TIMEOUT);
 
@@ -60,10 +64,11 @@ class Server {
     });
     this.service.on('up', () => {
       this.remote = { host: 'localhost', port: this.SERVER_PORT };
+      this.sendToClient();
     });
     this.service.on('error', err => {
       console.log('Error Starting Bonjour Service: ', err);
-      this.reset().startClient();
+      this.reset().start(this.team);
     });
 
     if (!this.server) {
@@ -72,12 +77,11 @@ class Server {
       this.server = PeerServer({
         port: this.SERVER_PORT,
         path: '/teamO',
-        proxied: true,
+        // proxied: true,
       });
       this.server.on('connection', id => {
         this.connections.add(id);
         // Send connected Set to Client
-        console.log(this.connections);
         this.sendToClient();
       });
       this.server.on('disconnect', id => {

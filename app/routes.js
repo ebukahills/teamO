@@ -13,10 +13,10 @@ export default ({ history }) => (
   <ConnectedRouter history={history}>
     <App>
       <Switch>
-        <Route path="/" exact={true} component={MainPage} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/team" component={EnterTeam} />
+        <Route path="/" component={MainPage} />
         <Redirect from="*" to="/" />
       </Switch>
     </App>

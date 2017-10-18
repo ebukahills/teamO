@@ -19,7 +19,7 @@ class EnterTeam extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      team: '',
+      team: props.team || '',
     };
   }
 
@@ -36,7 +36,7 @@ class EnterTeam extends Component {
           <span style={{ fontSize: '2em' }}>
             <strong>Join Your Team</strong>
           </span>
-          <p style={{ margin: '5px 50px 20px 0px' }}>
+          <p style={{ margin: '5px 40px 20px 0px' }}>
             Enter your Team ID below to start communicating with a team on your
             Local Network. Not sure what your Team ID is? Create one and share
             with others on your Network to join You! 😁
@@ -65,6 +65,12 @@ class EnterTeam extends Component {
       </IntroPage>
     );
   }
+}
+
+function mapStateToProps(state) {
+  return {
+    team: state.user.team,
+  };
 }
 
 export default connect()(EnterTeam);

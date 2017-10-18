@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import Sidebar from './Sidebar';
 import ChatPage from './ChatPage';
 
+import { setActive } from '../actions/appActions';
 import { redirect } from '../actions/routerActions';
+import { Switch, Route } from 'react-router';
 
 class MainPage extends Component {
   constructor(props) {
@@ -12,8 +14,15 @@ class MainPage extends Component {
   }
 
   componentWillMount() {
-    if (!this.props.authenticated) {
+    let { authenticated, username, path, active } = this.props;
+    if (!authenticated) {
       this.props.dispatch(redirect('/team'));
+    }
+    if (path === '/') {
+      // Active and Redirect are 2 separate Actions.
+      // May change in future
+      this.props.dispatch(setActive(active || username));
+      this.props.dispatch(redirect(`/chat/${active || username}`));
     }
   }
 
@@ -21,7 +30,9 @@ class MainPage extends Component {
     return (
       <div id="slack-container">
         <Sidebar />
-        <ChatPage />
+        <Switch>
+          <Route path="/chat/*" component={ChatPage} />
+        </Switch>
       </div>
     );
   }
@@ -30,6 +41,9 @@ class MainPage extends Component {
 function mapStateToProps(state) {
   return {
     authenticated: state.user.authenticated,
+    username: state.user.username,
+    path: state.router.location.pathname,
+    active: state.app.active,
   };
 }
 

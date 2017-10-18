@@ -17,3 +17,12 @@ export const loadUsers = (users: []) => {
     users,
   };
 };
+
+export const ACTIVE_CHAT = 'ACTIVE_CHAT';
+
+export const setActive = (active: string) => {
+  return {
+    type: ACTIVE_CHAT,
+    active,
+  };
+};

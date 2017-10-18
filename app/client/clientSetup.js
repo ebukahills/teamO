@@ -38,17 +38,18 @@ class Client {
         });
 
         this.peer.on('error', err => {
-          console.error('Peer Connection Error, ', err.type);
-          throw new Error(err);
+          console.error('Peer Connection Error, ', err.type, err);
+          this.reset().start(this.username, this.team);
         });
 
         this.peer.on('disconnected', () => {
           console.log('Peer Server Disconnected: ');
-          // this.reset().start(this.username, this.team)
           // TODO: Handle Network Renegotiation Here!;
+          this.reset().start(this.username, this.team);
         });
 
         this.peer.on('open', id => {
+          console.log('Peer Connection to Server Opened Successfully!');
           this.connected = true;
           this.startListening();
         });
@@ -57,6 +58,7 @@ class Client {
       if (data.remote.host === 'localhost') {
         // This Peer is the server. Broadcast to all Active RTC connections
         this.connections = data.connections;
+        store.dispatch(loadUsers(this.connections)); // Set this guy's state here cuz he's excluded from receiving
         this.broadcastMessage('connections', this.connections);
       }
     });
@@ -75,10 +77,12 @@ class Client {
   }
 
   startListening() {
+    console.log('Peer Connection Listener Started!');
     // Connect Listener
-    this.peer.on('connect', dataConnection => {
-      console.log('New Client Peer Connection');
+    this.peer.on('connection', dataConnection => {
+      console.log('New Client Peer Connection', dataConnection.peer);
       dataConnection.on('data', data => {
+        console.log('Data Received: ', data);
         switch (data.type) {
           case 'message':
             console.log('Received Peer Message');
@@ -100,12 +104,14 @@ class Client {
   }
 
   broadcastMessage(type = 'default', connections, message = connections) {
-    console.log('Sending Broadcast Message', message);
     // connections is an array of IDs to broadcast message to
     // Message Format { type: type, message: message }
-    _.forEach(_.filter(connections, id => id !== this.peer.id), id =>
-      this.peer.connect(id).send({ type, message })
-    );
+    _.forEach(_.filter(connections, id => id !== this.peer.id), id => {
+      let conn = this.peer.connect(id);
+      conn.on('open', () => {
+        conn.send({ type, message });
+      });
+    });
   }
 
   sendMessage(message) {
@@ -133,10 +139,10 @@ class Client {
       this.peer.disconnect();
     }
     ipcRenderer.removeAllListeners('server:update');
-    this.connected = false; // Peer connection succeeded with Server;
-    this.connections = null; // Array of online connections from server or other peers
+    this.connected = false;
+    this.connections = null;
     this.remote = null;
-    // this.peer = null;
+    this.peer = null;
     // this.username = null;
     // this.team = null;
     return this;

@@ -29,7 +29,7 @@ export default (state = {}, action) => {
         : [].concat(message);
       return {
         ...state,
-        [state[fromTo]]: newMessageArr.sort(sortByTime, 0),
+        [fromTo]: newMessageArr.sort(sortByTime, 0),
       };
 
     default:

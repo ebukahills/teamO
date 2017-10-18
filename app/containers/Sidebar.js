@@ -1,13 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import { redirect } from '../actions/routerActions';
+import { setActive } from '../actions/appActions';
+
 class Sidebar extends Component {
   constructor(props) {
     super(props);
   }
 
+  redirectToChat(active) {
+    this.props.dispatch(setActive(active));
+    this.props.dispatch(redirect(`/chat/${active}`));
+  }
+
   render() {
-    const { team, username, users } = this.props;
+    const { dispatch, team, username, users, path } = this.props;
+    const me = path.includes(username);
     return (
       <div id="sidebar">
         <div id="sidebar-container">
@@ -19,7 +28,7 @@ class Sidebar extends Component {
             <h2>{username}</h2>
           </div>
           <ul id="channels">
-            <h4>channels</h4>
+            <h4>GROUPS</h4>
             <li className="channel selected">
               <p>
                 <i># </i>general
@@ -47,11 +56,19 @@ class Sidebar extends Component {
             </li>
           </ul>
           <ul id="direct-messages">
-            <h4>Direct Messages</h4>
+            <h4>Messages</h4>
             {users.map((user, key) => (
-              <li key={key} className="direct-message">
+              <li
+                key={key}
+                className={`direct-message ${path.includes(user)
+                  ? 'selected'
+                  : ''}`}
+                onClick={() => this.redirectToChat(user)}
+              >
                 <div className="status"> </div>
-                <p>{user}</p>
+                <p>
+                  {user} {me ? '  (Me)' : ''}
+                </p>
               </li>
             ))}
           </ul>
@@ -66,6 +83,7 @@ function mapStateToProps(state) {
     team: state.user.team,
     username: state.user.username,
     users: state.app.users,
+    path: state.router.location.pathname,
   };
 }
 
