@@ -11,9 +11,11 @@ class MessageInput extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    let message = this.state.message;
-    this.setState({ message: '' });
-    this.props.onSubmit(message); // Message is passed directly as string to parent
+    let message = this.state.message.trim();
+    if (message) {
+      this.setState({ message: '' });
+      this.props.onSubmit(message); // Message is passed directly as string to parent
+    }
   }
 
   render() {

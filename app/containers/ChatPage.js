@@ -11,6 +11,13 @@ class ChatPage extends Component {
     super(props);
   }
 
+  // componentDidMount() {
+  // }
+
+  componentDidUpdate() {
+    document.getElementById('scrollIntoView').scrollIntoView();
+  }
+
   onSendMessage(m) {
     let { messages, username, active } = this.props;
     let message = {
@@ -23,6 +30,7 @@ class ChatPage extends Component {
   }
 
   render() {
+    document.getElementById('scrollIntoView').scrollIntoView();
     let { messages, username, active } = this.props;
     // Active is the Active Chat Route
     return (
@@ -44,6 +52,7 @@ class ChatPage extends Component {
                   me={message.from === username}
                 />
               ))}
+            <span id="scrollIntoView" />
           </ul>
         </div>
         <MessageInput
