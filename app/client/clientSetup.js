@@ -253,3 +253,7 @@ export function getUsername() {
 export function sendMessage(message) {
   C.sendMessage(message);
 }
+
+export function makeCall(id, type) {
+  C.makeCall(id, type);
+}

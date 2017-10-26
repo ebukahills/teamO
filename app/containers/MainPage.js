@@ -21,8 +21,8 @@ class MainPage extends Component {
     if (path === '/') {
       // Active and Redirect are 2 separate Actions.
       // May change in future
-      // this.props.dispatch(setActive(username));
-      // this.props.dispatch(redirect(`/chat/${active || username}`));
+      this.props.dispatch(setActive(username));
+      this.props.dispatch(redirect(`/chat/${active || username}`));
     }
   }
 

@@ -4,18 +4,31 @@ import { connect } from 'react-redux';
 import Message from '../components/Message';
 import MessageInput from '../components/MessageInput';
 
-import { sendMessage } from '../client/clientSetup';
+import { sendMessage, makeCall } from '../client/clientSetup';
 
 class ChatPage extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  // componentDidMount() {
+  // constructor(props) {
+  //   super(props);
   // }
 
+  componentDidMount() {
+    let scrollIntoView = document.getElementById('scrollIntoView');
+    if (scrollIntoView) {
+      setTimeout(function() {
+        scrollIntoView.scrollIntoView();
+      }, 1000);
+    }
+  }
+
+  // KEEP IT DRRYYYY 😭😭😢 STUPID!
+
   componentDidUpdate() {
-    document.getElementById('scrollIntoView').scrollIntoView();
+    let scrollIntoView = document.getElementById('scrollIntoView');
+    if (scrollIntoView) {
+      setTimeout(function() {
+        scrollIntoView.scrollIntoView();
+      }, 1000);
+    }
   }
 
   onSendMessage(m) {
@@ -29,15 +42,15 @@ class ChatPage extends Component {
     sendMessage(message);
   }
 
+  callUser() {
+    let { active } = this.props;
+    console.log('calling ' + active + ' ....');
+    makeCall(active, 'video');
+  }
+
   render() {
-    // let scrollIntoView = document.getElementById('scrollIntoView');
-    // if (scrollIntoView) {
-    //   setTimeout(function() {
-    //     scrollIntoView.scrollIntoView();
-    //   }, 1000);
-    // }
     let { messages, username = 'tester', active = 'tester' } = this.props;
-    console.log(messages, active);
+    // console.log(messages, active);
     // Active is the Active Chat Route
     return (
       <div id="chat">
@@ -46,6 +59,14 @@ class ChatPage extends Component {
           <div className="details">
             <h3 className="members">5 members</h3>
             <h3 className="purpose">Sometimes we do cool stuff</h3>
+          </div>
+          <div className="call-actions">
+            <h1
+              className="fa fa-call fa-3x pull-right text-right"
+              onClick={() => this.callUser()}
+            >
+              CALL{' '}
+            </h1>
           </div>
         </div>
         <div id="chatbox">

@@ -13,13 +13,6 @@
 import { app, BrowserWindow, ipcMain, session } from 'electron';
 import MenuBuilder from './menu';
 
-// session permission handler;
-session.defaultSession.setPermissionRequestHandler(
-  (webContents, permission, cb) => {
-    return cb(true);
-  }
-);
-
 import { start, stop } from './ipc/ipcMainActions';
 
 let mainWindow = null;
@@ -69,6 +62,13 @@ app.on('ready', async () => {
   ) {
     await installExtensions();
   }
+
+  // session permission handler;
+  session.defaultSession.setPermissionRequestHandler(
+    (webContents, permission, cb) => {
+      return cb(true);
+    }
+  );
 
   mainWindow = new BrowserWindow({
     show: false,
