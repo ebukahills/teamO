@@ -3,6 +3,8 @@ import Bonjour from 'bonjour';
 // import {PeerServer} from 'peer';
 const PeerServer = require('peer').PeerServer;
 
+import { debounce } from 'lodash';
+
 const RAND_TIMEOUT = Math.round(Math.random() * 20000 + 10000); // Random 10 - 30 seconds;
 const SERVER_PORT = 8000;
 const SERVICE_PORT = 8001;
@@ -28,6 +30,10 @@ class Server {
     // Listen for Disconnected Event from Client
     ipcMain.on('client:disconnected', (e, data) => {
       this.reset().start(this.team);
+    });
+
+    ipcMain.on('get:update', () => {
+      this.sendToClient();
     });
   }
 
@@ -82,7 +88,14 @@ class Server {
       this.server.on('connection', id => {
         this.connections.add(id);
         // Send connected Set to Client
-        this.sendToClient();
+        // this.sendToClient();
+        let sendToClientInterval = setInterval(() => {
+          this.sendToClient();
+        }, 5000);
+        // Listen for when the client notifies server that it has received list of remote connections
+        ipcMain.once('client:started', (e, data) => {
+          clearInterval(sendToClientInterval);
+        });
       });
       this.server.on('disconnect', id => {
         if (this.connections.delete(id)) {
@@ -124,10 +137,17 @@ class Server {
   }
 
   sendToClient() {
-    this.clientWindow.send('server:update', {
-      remote: this.remote,
-      connections: Array.from(this.connections),
-    });
+    let actuallySendToClient = () => {
+      this.clientWindow.send('server:update', {
+        remote: this.remote,
+        connections: Array.from(this.connections),
+      });
+    };
+    debounce(actuallySendToClient, 3000, { leading: true })();
+  }
+
+  getTeam() {
+    return this.team;
   }
 
   reset() {
@@ -140,5 +160,9 @@ class Server {
 let S = new Server();
 
 export function startServer(team) {
+  if (team === S.getTeam()) {
+    console.log('Client was restarted. Maintain State...');
+    return;
+  }
   S.reset().start(team);
 }

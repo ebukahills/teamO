@@ -16,7 +16,7 @@ export default ({ history }) => (
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/team" component={EnterTeam} />
-        <Route path="/" component={MainPage} />
+        <Route path="/*" component={MainPage} />
         <Redirect from="*" to="/" />
       </Switch>
     </App>

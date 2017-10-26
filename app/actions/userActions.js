@@ -8,14 +8,17 @@ import { startClient } from '../client/clientSetup';
 export const SET_TEAM = 'SET_TEAM';
 export const LOGIN = 'LOGIN';
 
-export const setTeam = team => {
+export const setTeam = (team, fromRehydrate) => {
   return dispatch => {
     ipcRenderer.send('set:team', team.trim().toUpperCase());
     dispatch({
       type: SET_TEAM,
       team,
     });
-    dispatch(push('/login'));
+    if (!fromRehydrate) {
+      // No need to redirect to Login if Action came from Redux Rehydration
+      dispatch(push('/login'));
+    }
   };
 };
 
@@ -35,14 +38,16 @@ export const startLogin = (username, password, team) => {
   };
 };
 
-export const login = (username, details) => dispatch => {
-  startClient();
+export const login = (username, fromRehydrate, details) => dispatch => {
+  startClient(username);
   dispatch({
     type: LOGIN,
     username,
     details,
   });
-  dispatch(push('/'));
+  if (!fromRehydrate) {
+    dispatch(push('/'));
+  }
 };
 
 export const startRegister = (name, username, password, team) => dispatch => {

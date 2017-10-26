@@ -19,7 +19,7 @@ class ChatPage extends Component {
   }
 
   onSendMessage(m) {
-    let { messages, username, active } = this.props;
+    let { username, active } = this.props;
     let message = {
       message: m, // String function was called with from MessageInput Child;
       from: username,
@@ -30,8 +30,14 @@ class ChatPage extends Component {
   }
 
   render() {
-    document.getElementById('scrollIntoView').scrollIntoView();
-    let { messages, username, active } = this.props;
+    // let scrollIntoView = document.getElementById('scrollIntoView');
+    // if (scrollIntoView) {
+    //   setTimeout(function() {
+    //     scrollIntoView.scrollIntoView();
+    //   }, 1000);
+    // }
+    let { messages, username = 'tester', active = 'tester' } = this.props;
+    console.log(messages, active);
     // Active is the Active Chat Route
     return (
       <div id="chat">
@@ -44,15 +50,18 @@ class ChatPage extends Component {
         </div>
         <div id="chatbox">
           <ul className="messages">
-            {messages &&
+            {messages.length ? (
               messages.map((message, key) => (
                 <Message
                   key={key}
                   message={message}
                   me={message.from === username}
                 />
-              ))}
-            <span id="scrollIntoView" />
+              ))
+            ) : (
+              <span />
+            )}
+            <li id="scrollIntoView" />
           </ul>
         </div>
         <MessageInput
@@ -65,11 +74,10 @@ class ChatPage extends Component {
 }
 
 function mapStateToProps(state) {
-  let active = state.app.active;
   return {
-    messages: state.messages[active], // Messages Array
-    username: state.user.username,
-    active,
+    messages: state.messages[state.app.active] || [], // Messages Array
+    username: state.user.username || 'tester',
+    active: state.app.active || 'tester',
   };
 }
 

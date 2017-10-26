@@ -10,8 +10,15 @@
  *
  * @flow
 */
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, session } from 'electron';
 import MenuBuilder from './menu';
+
+// session permission handler;
+session.defaultSession.setPermissionRequestHandler(
+  (webContents, permission, cb) => {
+    return cb(true);
+  }
+);
 
 import { start, stop } from './ipc/ipcMainActions';
 
@@ -67,6 +74,11 @@ app.on('ready', async () => {
     show: false,
     width: 1024,
     height: 728,
+    minWidth: 900,
+    minHeight: 680,
+    x: 100,
+    y: 100,
+    title: 'teamO!',
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);

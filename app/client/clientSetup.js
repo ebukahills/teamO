@@ -7,6 +7,7 @@ import { initDB, saveMessages } from '../db';
 
 import { loadUsers } from '../actions/appActions';
 import { newMessage } from '../actions/messageActions';
+import { showError } from '../actions/feedbackActions';
 
 class Client {
   constructor() {
@@ -16,14 +17,22 @@ class Client {
     this.peer = null;
     this.username = null;
     this.team = null;
+    this.mediaStreams = {};
   }
 
   start(username, team) {
     initDB(team, username); // Start Client DB
     this.username = username;
     this.team = team;
+
+    // Notify Main of initialization
+    ipcRenderer.send('get:update');
     // Setup Listener for Server Events
     ipcRenderer.on('server:update', (e, data) => {
+      if (!data.remote) {
+        console.log('Server not ready to send remote host id');
+        return;
+      }
       console.log('Got Server Update Message ', data);
       this.remote = data.remote;
       this.connections = data.connections;
@@ -104,6 +113,72 @@ class Client {
         }
       });
     });
+
+    // Call Listener
+    this.peer.on('call', mediaConnection => {
+      let { id } = mediaConnection;
+      let { type } = mediaConnection.metadata;
+      // Answer Call Automatically
+      // Start Listener for when this call is ended
+      ipcRenderer.once(`call:end:${id}`, () => {
+        if (this.mediaStreams[id]) {
+          // If stream exists, stop track and release Webcam & Audio
+          _.forEach(this.mediaStreams[id].getTracks(), track => track.stop());
+          this.mediaStreams[id] = null;
+        }
+      });
+
+      let callOpts = { voice: true };
+      if (type === 'video') {
+        callOpts.video = true;
+      }
+      navigator.mediaDevices
+        .getUserMedia(callOpts)
+        .then(stream => {
+          // Save this call's mediaStream to class scope so we can tear it down later;
+          this.mediaStreams[id] = stream;
+          ipcRenderer.send('new:call', { call: mediaConnection, stream });
+        })
+        .catch(err => {
+          store.dispatch(showError(err));
+        });
+
+      // TODO
+      // Received call. Show Notification
+      // navigator.mediaDevices.getUserMedia()
+    });
+  }
+
+  makeCall(id, type) {
+    // Start Listener for when this call is ended
+    ipcRenderer.once(`call:end:${id}`, () => {
+      if (this.mediaStreams[id]) {
+        // If stream exists, stop track and release Webcam & Audio
+        _.forEach(this.mediaStreams[id].getTracks(), track => track.stop());
+        this.mediaStreams[id] = null;
+      }
+    });
+
+    let callOpts = { voice: true };
+    if (type === 'video') {
+      callOpts.video = true;
+    }
+    navigator.mediaDevices
+      .getUserMedia(callOpts)
+      .then(stream => {
+        // Save this call's mediaStream to class scope so we can tear it down later;
+        this.mediaStreams[id] = stream;
+        // Send along the media connection type so receiver knows what type of call to initiate;
+        let metadata = { initiator: true, type }; // type === voice || video
+        // Call user with peer id
+        let mediaConnection = this.peer.call(id, stream, { metadata });
+        // Send off Call to ipcMain to Start call Window
+        ipcRenderer.send('new:call', { call: mediaConnection, stream });
+      })
+      .catch(err => {
+        // console.log(err)
+        store.dispatch(showError(err));
+      });
   }
 
   broadcastMessage(type = 'default', connections, message = connections) {
@@ -153,6 +228,7 @@ class Client {
     this.connections = null;
     this.remote = null;
     this.peer = null;
+    this.mediaStreams = {};
     // this.username = null;
     // this.team = null;
     return this;
@@ -161,8 +237,8 @@ class Client {
 
 let C = new Client();
 
-export function startClient() {
-  let { username, team } = store.getState().user;
+export function startClient(username) {
+  let { team } = store.getState().user;
   C.reset().start(username, team);
 }
 

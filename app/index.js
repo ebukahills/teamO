@@ -26,11 +26,9 @@ persistStore(store, {}, err => {
     store.dispatch(appReady(true));
     // Get User information from restored state and startLogin action to Main
     const { username, team } = store.getState().user;
-    if (team) {
-      store.dispatch(setTeam(team));
-    }
-    if (username) {
-      store.dispatch(login(username));
+    if (team && username) {
+      store.dispatch(setTeam(team, true)); // True Flag to Indicate Action from REHYDRATION and forgo Redirect to Login
+      store.dispatch(login(username, true)); // True Flag to Indicate Action from REHYDRATION and forgo Redirect to Homepage
     }
   }
 });
@@ -53,3 +51,8 @@ if (module.hot) {
     );
   });
 }
+
+// Request Notification Permission on app initialization
+Notification.requestPermission().then(function(result) {
+  console.log('Notification Request: ', result);
+});

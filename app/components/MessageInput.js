@@ -28,7 +28,7 @@ class MessageInput extends Component {
               size="lg"
               value={this.state.message}
               onChange={e => this.setState({ message: e.target.value })}
-              placeholder={`   Send to @${this.props.active}`}
+              placeholder={` Send to @${this.props.active}`}
             />
           </FormGroup>
         </Form>

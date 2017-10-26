@@ -1,36 +1,42 @@
 import React from 'react';
-import TimeAgo from 'react-timeago';
+import Time from './Time';
 
 const Message = props => {
-  return props.me ? (
-    <li className="message d-flex justify-content-end">
-      <div className="body">
-        <div className="username text-right">
-          <TimeAgo className="timeAgo" date={props.message.time} live={false} />
-          {'    '}
-          Me
+  if (props.me) {
+    return (
+      // Message Sent From Me
+      <li className="message d-flex justify-content-end">
+        <div className="body">
+          <div className="username text-right">
+            <Time time={props.message.time} />
+            {'    '}
+            Me
+          </div>
+          <div className="text">{props.message.message}</div>
         </div>
-        <div className="text">{props.message.message}</div>
-      </div>
-      <div className="user-icon">
-        <img src="http://socialmediaweek.org/wp-content/blogs.dir/1/files/slack-pattern-940x492.jpg" />
-      </div>
-    </li>
-  ) : (
-    <li className="message d-flex">
-      <div className="user-icon">
-        <img src="http://socialmediaweek.org/wp-content/blogs.dir/1/files/slack-pattern-940x492.jpg" />
-      </div>
-      <div className="body">
-        <div className="username">
-          {props.message.from}
-          {'    '}
-          <TimeAgo className="timeAgo" date={props.message.time} live={false} />
+        <div className="user-icon">
+          <img src="http://socialmediaweek.org/wp-content/blogs.dir/1/files/slack-pattern-940x492.jpg" />
         </div>
-        <div className="text">{props.message.message}</div>
-      </div>
-    </li>
-  );
+      </li>
+    );
+  } else {
+    return (
+      // Message Sent From Other client
+      <li className="message d-flex">
+        <div className="user-icon">
+          <img src="http://socialmediaweek.org/wp-content/blogs.dir/1/files/slack-pattern-940x492.jpg" />
+        </div>
+        <div className="body">
+          <div className="username">
+            {props.message.from}
+            {'    '}
+            <Time time={props.message.time} />
+          </div>
+          <div className="text">{props.message.message}</div>
+        </div>
+      </li>
+    );
+  }
 };
 
 // Message.prototype = {}
