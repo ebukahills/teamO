@@ -127,7 +127,9 @@ class Server {
     }, 2000);
     // Listen for when the client notifies server that it has received list of remote connections
     ipcMain.once('client:started', (e, data) => {
-      clearInterval(sendToClientInterval);
+      if (data.started) {
+        clearInterval(sendToClientInterval);
+      }
     });
     this.browser.on('down', () => {
       // Service Down. Do Something
@@ -137,13 +139,11 @@ class Server {
   }
 
   sendToClient() {
-    let actuallySendToClient = () => {
-      this.clientWindow.send('server:update', {
-        remote: this.remote,
-        connections: Array.from(this.connections),
-      });
-    };
-    debounce(actuallySendToClient, 3000, { leading: true })();
+    this.clientWindow.send('server:update', {
+      remote: this.remote,
+      connections: Array.from(this.connections),
+    });
+    // debounce(actuallySendToClient, 3000, { leading: true })();
   }
 
   getTeam() {

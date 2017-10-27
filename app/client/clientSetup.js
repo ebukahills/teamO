@@ -37,7 +37,9 @@ class Client {
       this.remote = data.remote;
       this.connections = data.connections;
 
-      ipcRenderer.send('client:started', 'Client Started!!!');
+      ipcRenderer.send('client:started', {
+        started: !!this.connections.length,
+      });
 
       if (!this.peer) {
         // No Peer Connection. Connect PeerJS
@@ -145,7 +147,6 @@ class Client {
 
       // TODO
       // Received call. Show Notification
-      // navigator.mediaDevices.getUserMedia()
     });
   }
 

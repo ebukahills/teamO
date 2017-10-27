@@ -13,6 +13,7 @@ export function start() {
 
   // New Call, New Window Handler
   ipcMain.on('new:call', (e, { call, stream }) => {
+    console.log(call, stream);
     let { id } = call;
     let { type } = call.metadata;
 
@@ -22,8 +23,7 @@ export function start() {
         // show: false,
         parent: mainWindow, // Set the main window as parent
         backgroundColor: '#000',
-        minimizable: false,
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
         skipTaskbar: true,
         acceptFirstMouse: true,
         autoHideMenuBar: true,
