@@ -16,7 +16,7 @@ class ChatPage extends Component {
     if (scrollIntoView) {
       setTimeout(function() {
         scrollIntoView.scrollIntoView();
-      }, 1000);
+      }, 200);
     }
   }
 

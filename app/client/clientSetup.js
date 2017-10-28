@@ -137,6 +137,7 @@ class Client {
       navigator.mediaDevices
         .getUserMedia(callOpts)
         .then(stream => {
+          console.log('My stream for Receive: \n', stream);
           // Save this call's mediaStream to class scope so we can tear it down later;
           this.mediaStreams[id] = stream;
           ipcRenderer.send('new:call', { call: mediaConnection, stream });
@@ -167,6 +168,7 @@ class Client {
     navigator.mediaDevices
       .getUserMedia(callOpts)
       .then(stream => {
+        console.log('My stream for Making Call: \n', stream);
         // Save this call's mediaStream to class scope so we can tear it down later;
         this.mediaStreams[id] = stream;
         // Send along the media connection type so receiver knows what type of call to initiate;

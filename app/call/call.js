@@ -13,7 +13,8 @@ ipcRenderer.on('call:start', (e, { call, stream, id }) => {
     </div>
   `);
 
-  if (!call.metadata.initiator) {
+  if (id !== call.id) {
+    console.log('Call Answered!');
     call.answer(stream);
   }
 

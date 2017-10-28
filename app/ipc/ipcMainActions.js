@@ -13,7 +13,7 @@ export function start() {
 
   // New Call, New Window Handler
   ipcMain.on('new:call', (e, { call, stream }) => {
-    console.log(call, stream);
+    console.log('Call Mediastream: \n', call, 'My Stream: \n', stream);
     let { id } = call;
     let { type } = call.metadata;
 
